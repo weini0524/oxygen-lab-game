@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>氧气实验室制取与性质学习小游戏</title>
+	<style>
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+			font-family: 'Microsoft YaHei', sans-serif;
+		}
+		
+		body {
+			background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+			color: #333;
+			min-height: 100vh;
+			padding: 20px;
+		}
+		
+		.container {
+			max-width: 800px;
+			margin: 0 auto;
+			background-color: rgba(255, 255, 255, 0.9);
+			border-radius: 15px;
+			box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+			padding: 30px;
+			position: relative;
+			overflow: hidden;
+		}
+		
+		h1 {
+			text-align: center;
+			color: #0277bd;
+			margin-bottom: 20px;
+			text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+		}
+		
+		.intro {
+			text-align: center;
+			margin-bottom: 30px;
+			line-height: 1.6;
+		}
+		
+		.game-area {
+			display: none;
+		}
+		
+		.active {
+			display: block;
+		}
+		
+		.level-title {
+			font-size: 1.5rem;
+			color: #01579b;
+			margin-bottom: 20px;
+			text-align: center;
+		}
+		
+		.question {
+			background-color: #e1f5fe;
+			padding: 20px;
+			border-radius: 10px;
+			margin-bottom: 20px;
+			border-left: 5px solid #0288d1;
+		}
+		
+		.options {
+			display: grid;
+			grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+			gap: 15px;
+			margin-bottom: 20px;
+		}
+		
+		.option {
+			background-color: #f5f5f5;
+			padding: 15px;
+			border-radius: 8px;
+			cursor: pointer;
+			transition: all 0.3s;
+			text-align: center;
+			border: 2px solid #e0e0e0;
+			position: relative;
+		}
+		
+		.option:hover {
+			background-color: #e3f2fd;
+			transform: translateY(-3px);
+			box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+		}
+		
+		.option.selected {
+			background-color: #bbdefb;
+			border-color: #2196f3;
+			color: #01579b;
+			font-weight: bold;
+		}
+		
+		.option.correct {
+			background-color: #c8e6c9;
+			border-color: #4caf50;
+		}
+		
+		.option.wrong {
+			background-color: #ffcdd2;
+			border-color: #f44336;
+		}
+		
+		.sortable-list {
+			list-style-type: none;
+			margin-bottom: 20px;
+		}
+		
+		.sortable-item {
+			background-color: #f5f5f5;
+			padding: 15px;
+			margin-bottom: 10px;
+			border-radius: 8px;
+			cursor: move;
+			border-left: 5px solid #ff9800;
+			transition: all 0.3s;
+			display: flex;
+			align-items: center;
+		}
+		
+		.step-number {
+			display: inline-block;
+			width: 30px;
+			height: 30px;
+			background-color: #0288d1;
+			color: white;
+			border-radius: 50%;
+			text-align: center;
+			line-height: 30px;
+			margin-right: 15px;
+			font-weight: bold;
+		}
+		
+		.sortable-item:hover {
+			background-color: #fff3e0;
+		}
+		
+		.sortable-item.dragging {
+			opacity: 0.6;
+			transform: scale(1.02);
+		}
+		
+		.true-false-options {
+			display: flex;
+			justify-content: center;
+			gap: 20px;
+			margin-bottom: 20px;
+		}
+		
+		.true-false-btn {
+			padding: 12px 30px;
+			border-radius: 8px;
+			cursor: pointer;
+			font-size: 1.1rem;
+			font-weight: bold;
+			transition: all 0.3s;
+			border: none;
+		}
+		
+		.true-btn {
+			background-color: #c8e6c9;
+			color: #2e7d32;
+		}
+		
+		.false-btn {
+			background-color: #ffcdd2;
+			color: #c62828;
+		}
+		
+		.true-false-btn:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+		}
+		
+		.true-false-btn.selected {
+			transform: scale(1.05);
+			box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+			background-color: #0288d1;
+			color: white;
+		}
+		
+		.btn {
+			display: block;
+			margin: 20px auto;
+			padding: 12px 30px;
+			background-color: #0288d1;
+			color: white;
+			border: none;
+			border-radius: 8px;
+			font-size: 1.1rem;
+			cursor: pointer;
+			transition: all 0.3s;
+		}
+		
+		.btn:hover {
+			background-color: #0277bd;
+			transform: translateY(-3px);
+			box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+		}
+		
+		.btn:disabled {
+			background-color: #b0bec5;
+			cursor: not-allowed;
+			transform: none;
+			box-shadow: none;
+		}
+		
+		.feedback {
+			text-align: center;
+			padding: 15px;
+			border-radius: 8px;
+			margin-bottom: 20px;
+			font-weight: bold;
+			display: none;
+		}
+		
+		.correct-feedback {
+			background-color: #e8f5e9;
+			color: #2e7d32;
+			border: 2px solid #4caf50;
+		}
+		
+		.wrong-feedback {
+			background-color: #ffebee;
+			color: #c62828;
+			border: 2px solid #f44336;
+		}
+		
+		.score {
+			text-align: center;
+			font-size: 1.2rem;
+			margin-bottom: 20px;
+			color: #01579b;
+		}
+		
+		.level-indicator {
+			display: flex;
+			justify-content: center;
+			margin-bottom: 20px;
+		}
+		
+		.level-dot {
+			width: 12px;
+			height: 12px;
+			border-radius: 50%;
+			background-color: #b0bec5;
+			margin: 0 5px;
+		}
+		
+		.level-dot.active {
+			background-color: #0288d1;
+		}
+		
+		.completion-screen {
+			text-align: center;
+			display: none;
+		}
+		
+		.completion-screen h2 {
+			color: #0277bd;
+			margin-bottom: 20px;
+		}
+		
+		.completion-screen p {
+			margin-bottom: 20px;
+			font-size: 1.1rem;
+		}
+		
+		.restart-btn {
+			background-color: #4caf50;
+		}
+		
+		.restart-btn:hover {
+			background-color: #43a047;
+		}
+		
+		.oxygen-molecule {
+			position: absolute;
+			font-size: 24px;
+			opacity: 0.1;
+			z-index: -1;
+		}
+		
+		@keyframes float {
+			0% { transform: translateY(0) rotate(0deg); }
+			50% { transform: translateY(-10px) rotate(5deg); }
+			100% { transform: translateY(0) rotate(0deg); }
+		}
+		
+		.floating {
+			animation: float 5s ease-in-out infinite;
+		}
+		
+		.sound-toggle {
+			position: absolute;
+			top: 20px;
+			right: 20px;
+			background: none;
+			border: none;
+			font-size: 1.5rem;
+			cursor: pointer;
+			color: #0277bd;
+		}
+		
+		.hint {
+			text-align: center;
+			font-style: italic;
+			color: #757575;
+			margin-bottom: 15px;
+		}
+		
+		.option-number {
+			position: absolute;
+			top: -8px;
+			right: -8px;
+			width: 24px;
+			height: 24px;
+			background-color: #ff9800;
+			color: white;
+			border-radius: 50%;
+			font-size: 0.8rem;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-weight: bold;
+			display: none;
+		}
+		
+		.selected .option-number {
+			display: flex;
+		}
+		
+		.step-item {
+			background-color: #e1f5fe;
+			padding: 15px;
+			margin-bottom: 10px;
+			border-radius: 8px;
+			cursor: pointer;
+			transition: all 0.3s;
+			border-left: 5px solid #0288d1;
+			display: flex;
+			align-items: center;
+		}
+		
+		.step-item.selected {
+			background-color: #bbdefb;
+			border-color: #2196f3;
+			color: #01579b;
+			font-weight: bold;
+		}
+		
+		.step-item .step-number {
+			background-color: #0288d1;
+		}
+		
+		.step-item.selected .step-number {
+			background-color: #2196f3;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<button id="sound-toggle" class="sound-toggle" title="切换音效">🔊</button>
+		
+		<h1>氧气实验室制取与性质学习小游戏</h1>
+		
+		<div class="intro">
+			<p>欢迎来到氧气实验室制取与性质学习小游戏！</p>
+			<p>通过三个关卡，巩固你对氧气实验室制取与性质的知识。</p>
+			<p>每个关卡完成后，点击"下一关"继续。</p>
+		</div>
+		
+		<div class="level-indicator">
+			<div class="level-dot active" data-level="1"></div>
+			<div class="level-dot" data-level="2"></div>
+			<div class="level-dot" data-level="3"></div>
+		</div>
+		
+		<div class="score">得分: <span id="score-value">0</span>/3</div>
+		
+		<!-- 关卡1: 实验用品选择 -->
+		<div id="level1" class="game-area active">
+			<div class="level-title">关卡1: 实验用品选择</div>
+			<div class="question">
+				<p>请选择实验室制取氧气所需的实验用品：</p>
+				<p class="hint">提示：点击物品可以选中或取消选中，选中的物品会显示编号</p>
+			</div>
+			<div class="options" id="equipment-options">
+				<div class="option" data-correct="true">
+					<span class="option-number"></span>
+					高锰酸钾
+				</div>
+				<div class="option" data-correct="true">
+					<span class="option-number"></span>
+					试管
+				</div>
+				<div class="option" data-correct="true">
+					<span class="option-number"></span>
+					酒精灯
+				</div>
+				<div class="option" data-correct="false">
+					<span class="option-number"></span>
+					烧杯
+				</div>
+				<div class="option" data-correct="true">
+					<span class="option-number"></span>
+					铁架台
+				</div>
+				<div class="option" data-correct="false">
+					<span class="option-number"></span>
+					漏斗
+				</div>
+				<div class="option" data-correct="true">
+					<span class="option-number"></span>
+					水槽
+				</div>
+				<div class="option" data-correct="true">
+					<span class="option-number"></span>
+					玻璃导管
+				</div>
+				<div class="option" data-correct="true">
+					<span class="option-number"></span>
+					乳胶管
+				</div>
+				<div class="option" data-correct="true">
+					<span class="option-number"></span>
+					玻璃片
+				</div>
+				<div class="option" data-correct="true">
+					<span class="option-number"></span>
+					集气瓶
+				</div>
+				<div class="option" data-correct="true">
+					<span class="option-number"></span>
+					棉花
+				</div>
+			</div>
+			<button id="check-level1" class="btn">检查答案</button>
+			<div id="feedback-level1" class="feedback"></div>
+			<button id="next-level1" class="btn" disabled>下一关</button>
+		</div>
+		
+		<!-- 关卡2: 实验步骤排序 -->
+		<div id="level2" class="game-area">
+			<div class="level-title">关卡2: 实验步骤排序</div>
+			<div class="question">
+				<p>请按正确顺序点击实验步骤：</p>
+				<p class="hint">提示：点击步骤进行排序，选中的步骤会显示编号和改变颜色</p>
+			</div>
+			<div id="steps-container">
+				<!-- 步骤将在JS中动态生成并打乱顺序 -->
+			</div>
+			<button id="check-level2" class="btn">检查顺序</button>
+			<div id="feedback-level2" class="feedback"></div>
+			<button id="next-level2" class="btn" disabled>下一关</button>
+		</div>
+		
+		<!-- 关卡3: 易错点判断 -->
+		<div id="level3" class="game-area">
+			<div class="level-title">关卡3: 易错点判断</div>
+			<div class="question">
+				<p id="true-false-question">请判断下列说法是否正确：</p>
+				<p class="hint">提示：点击已选中的按钮可以取消选择</p>
+			</div>
+			<div class="true-false-options">
+				<button class="true-false-btn true-btn">正确</button>
+				<button class="true-false-btn false-btn">错误</button>
+			</div>
+			<button id="check-level3" class="btn">检查答案</button>
+			<div id="feedback-level3" class="feedback"></div>
+			<button id="next-level3" class="btn" disabled>查看结果</button>
+		</div>
+		
+		<!-- 完成界面 -->
+		<div id="completion-screen" class="completion-screen">
+			<h2>恭喜你完成所有关卡！</h2>
+			<p>你的最终得分是: <span id="final-score">0</span>/3</p>
+			<p id="completion-message"></p>
+			<button id="restart-btn" class="btn restart-btn">重新开始</button>
+		</div>
+	</div>
+
+	<script>
+		// 当前关卡和得分
+		let currentLevel = 1;
+		let score = 0;
+		let soundEnabled = true;
+		
+		// 关卡3的问题和答案
+		const trueFalseQuestions = [
+			{
+				question: "制取氧气时，试管口应略向上倾斜。",
+				answer: false,
+				explanation: "错误。试管口应略向下倾斜，防止冷凝水倒流炸裂试管。"
+			},
+			{
+				question: "实验结束后，应先熄灭酒精灯，再移出导管。",
+				answer: false,
+				explanation: "错误。应先移出导管，再熄灭酒精灯，防止水槽中的水倒吸进入试管导致试管炸裂。"
+			},
+			{
+				question: "铁丝在氧气中燃烧时，集气瓶底部需预先装少量水或铺一层细沙。",
+				answer: true,
+				explanation: "正确。防止高温生成物溅落炸裂集气瓶。"
+			},
+			{
+				question: "氧气可以用向下排空气法收集。",
+				answer: false,
+				explanation: "错误。氧气密度比空气略大，应该用向上排空气法收集。"
+			},
+			{
+				question: "木炭在氧气中燃烧生成能使澄清石灰水变浑浊的气体。",
+				answer: true,
+				explanation: "正确。木炭在氧气中燃烧生成二氧化碳，能使澄清石灰水变浑浊。"
+			}
+		];
+		
+		let currentQuestionIndex = 0;
+		
+		// 实验室制取氧气的正确步骤
+		const correctSteps = [
+			{ order: 1, text: "检查装置的气密性" },
+			{ order: 2, text: "向试管中装入高锰酸钾，并在试管口放一团棉花" },
+			{ order: 3, text: "将试管固定在铁架台上" },
+			{ order: 4, text: "点燃酒精灯，先预热试管，再对药品部位加热" },
+			{ order: 5, text: "当导管口有连续均匀的气泡冒出时，开始收集氧气" },
+			{ order: 6, text: "收集完毕后，先将导管移出水槽" },
+			{ order: 7, text: "熄灭酒精灯，冷却后拆除装置" }
+		];
+		
+		// 初始化游戏
+		document.addEventListener('DOMContentLoaded', function() {
+			// 添加漂浮的氧气分子
+			addOxygenMolecules();
+			
+			// 设置音效开关
+			document.getElementById('sound-toggle').addEventListener('click', function() {
+				soundEnabled = !soundEnabled;
+				this.textContent = soundEnabled ? '🔊' : '🔇';
+				playSound('toggle');
+			});
+			
+			// 关卡1: 实验用品选择
+			setupLevel1();
+			
+			// 关卡2: 实验步骤排序
+			setupLevel2();
+			
+			// 关卡3: 易错点判断
+			setupLevel3();
+			
+			// 重新开始按钮
+			document.getElementById('restart-btn').addEventListener('click', restartGame);
+		});
+		
+		// 播放音效
+		function playSound(type) {
+			if (!soundEnabled) return;
+			
+			const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+			const oscillator = audioContext.createOscillator();
+			const gainNode = audioContext.createGain();
+			
+			oscillator.connect(gainNode);
+			gainNode.connect(audioContext.destination);
+			
+			switch(type) {
+				case 'correct':
+					oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+					gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+					gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+					oscillator.start(audioContext.currentTime);
+					oscillator.stop(audioContext.currentTime + 0.5);
+					break;
+				case 'wrong':
+					oscillator.frequency.setValueAtTime(220, audioContext.currentTime);
+					gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+					gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+					oscillator.start(audioContext.currentTime);
+					oscillator.stop(audioContext.currentTime + 0.5);
+					break;
+				case 'click':
+					oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+					gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+					gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+					oscillator.start(audioContext.currentTime);
+					oscillator.stop(audioContext.currentTime + 0.1);
+					break;
+				case 'toggle':
+					oscillator.frequency.setValueAtTime(660, audioContext.currentTime);
+					gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+					gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+					oscillator.start(audioContext.currentTime);
+					oscillator.stop(audioContext.currentTime + 0.2);
+					break;
+			}
+		}
+		
+		// 添加漂浮的氧气分子
+		function addOxygenMolecules() {
+			const container = document.querySelector('.container');
+			for (let i = 0; i < 10; i++) {
+				const oxygen = document.createElement('div');
+				oxygen.className = 'oxygen-molecule floating';
+				oxygen.textContent = 'O₂';
+				oxygen.style.left = Math.random() * 90 + '%';
+				oxygen.style.top = Math.random() * 90 + '%';
+				oxygen.style.animationDelay = Math.random() * 5 + 's';
+				container.appendChild(oxygen);
+			}
+		}
+		
+		// 设置关卡1
+		function setupLevel1() {
+			const options = document.querySelectorAll('#equipment-options .option');
+			const checkBtn = document.getElementById('check-level1');
+			const nextBtn = document.getElementById('next-level1');
+			const feedback = document.getElementById('feedback-level1');
+			
+			// 为按钮添加点击音效
+			checkBtn.addEventListener('click', function() {
+				playSound('click');
+			});
+			nextBtn.addEventListener('click', function() {
+				playSound('click');
+			});
+			
+			let selectedCount = 0;
+			
+			options.forEach(option => {
+				option.addEventListener('click', function() {
+					// 切换选中状态
+					const wasSelected = this.classList.contains('selected');
+					this.classList.toggle('selected');
+					// 移除之前的结果标记
+					this.classList.remove('correct', 'wrong');
+					
+					if (this.classList.contains('selected') && !wasSelected) {
+						// 选中
+						selectedCount++;
+						const optionNumber = this.querySelector('.option-number');
+						optionNumber.textContent = selectedCount;
+					} else if (!this.classList.contains('selected') && wasSelected) {
+						// 取消选中
+						selectedCount--;
+						// 更新其他选项的编号
+						updateOptionNumbers();
+					}
+					
+					playSound('click');
+				});
+			});
+			
+			// 更新选项编号的函数
+			function updateOptionNumbers() {
+				let count = 0;
+				options.forEach(option => {
+					if (option.classList.contains('selected')) {
+						count++;
+						const optionNumber = option.querySelector('.option-number');
+						optionNumber.textContent = count;
+					}
+				});
+				selectedCount = count;
+			}
+			
+			checkBtn.addEventListener('click', function() {
+				let allCorrect = true;
+				let selectedCorrect = true;
+				
+				options.forEach(option => {
+					const isCorrect = option.getAttribute('data-correct') === 'true';
+					const isSelected = option.classList.contains('selected');
+					
+					if (isCorrect && !isSelected) {
+						allCorrect = false;
+						option.classList.add('correct');
+					} else if (!isCorrect && isSelected) {
+						allCorrect = false;
+						selectedCorrect = false;
+						option.classList.add('wrong');
+					} else if (isCorrect && isSelected) {
+						option.classList.add('correct');
+					}
+				});
+				
+				if (allCorrect && selectedCorrect) {
+					feedback.textContent = "恭喜你！全部选择正确！";
+					feedback.className = "feedback correct-feedback";
+					feedback.style.display = "block";
+					score++;
+					updateScore();
+					nextBtn.disabled = false;
+					checkBtn.disabled = true;
+					playSound('correct');
+				} else {
+					feedback.textContent = "有些选项选择不正确，请检查并重试。";
+					feedback.className = "feedback wrong-feedback";
+					feedback.style.display = "block";
+					playSound('wrong');
+				}
+			});
+			
+			nextBtn.addEventListener('click', function() {
+				switchLevel(2);
+			});
+		}
+		
+		// 设置关卡2
+		function setupLevel2() {
+			const stepsContainer = document.getElementById('steps-container');
+			const checkBtn = document.getElementById('check-level2');
+			const nextBtn = document.getElementById('next-level2');
+			const feedback = document.getElementById('feedback-level2');
+			
+			// 为按钮添加点击音效
+			checkBtn.addEventListener('click', function() {
+				playSound('click');
+			});
+			nextBtn.addEventListener('click', function() {
+				playSound('click');
+			});
+			
+			// 复制并打乱步骤顺序
+			const shuffledSteps = [...correctSteps];
+			shuffleArray(shuffledSteps);
+			
+			// 将打乱后的步骤添加到容器中
+			shuffledSteps.forEach(step => {
+				const stepItem = document.createElement('div');
+				stepItem.className = 'step-item';
+				stepItem.setAttribute('data-order', step.order);
+				
+				// 添加步骤编号容器
+				const stepNumber = document.createElement('span');
+				stepNumber.className = 'step-number';
+				stepNumber.textContent = '?';
+				stepItem.appendChild(stepNumber);
+				
+				// 添加步骤文本
+				const stepText = document.createElement('span');
+				stepText.textContent = step.text;
+				stepItem.appendChild(stepText);
+				
+				stepsContainer.appendChild(stepItem);
+			});
+			
+			let selectedSteps = [];
+			
+			// 步骤点击事件
+			const stepItems = stepsContainer.querySelectorAll('.step-item');
+			stepItems.forEach(stepItem => {
+				stepItem.addEventListener('click', function() {
+					// 如果已经选中，则取消选中
+					if (this.classList.contains('selected')) {
+						this.classList.remove('selected');
+						const order = parseInt(this.getAttribute('data-order'));
+						selectedSteps = selectedSteps.filter(step => step !== order);
+						
+						// 更新所有步骤的编号
+						updateStepNumbers();
+					} else {
+						// 选中步骤
+						this.classList.add('selected');
+						const order = parseInt(this.getAttribute('data-order'));
+						selectedSteps.push(order);
+						
+						// 更新步骤编号
+						const stepNumber = this.querySelector('.step-number');
+						stepNumber.textContent = selectedSteps.length;
+					}
+					
+					playSound('click');
+				});
+			});
+			
+			// 更新步骤编号的函数
+			function updateStepNumbers() {
+				selectedSteps = [];
+				stepItems.forEach(stepItem => {
+					if (stepItem.classList.contains('selected')) {
+						const order = parseInt(stepItem.getAttribute('data-order'));
+						selectedSteps.push(order);
+						const stepNumber = stepItem.querySelector('.step-number');
+						stepNumber.textContent = selectedSteps.length;
+					} else {
+						const stepNumber = stepItem.querySelector('.step-number');
+						stepNumber.textContent = '?';
+					}
+				});
+			}
+			
+			checkBtn.addEventListener('click', function() {
+				const correctOrder = [1, 2, 3, 4, 5, 6, 7];
+				
+				let isCorrect = true;
+				if (selectedSteps.length !== correctOrder.length) {
+					isCorrect = false;
+				} else {
+					for (let i = 0; i < selectedSteps.length; i++) {
+						if (selectedSteps[i] !== correctOrder[i]) {
+							isCorrect = false;
+							break;
+						}
+					}
+				}
+				
+				if (isCorrect) {
+					feedback.textContent = "恭喜你！步骤顺序完全正确！";
+					feedback.className = "feedback correct-feedback";
+					feedback.style.display = "block";
+					score++;
+					updateScore();
+					nextBtn.disabled = false;
+					checkBtn.disabled = true;
+					playSound('correct');
+				} else {
+					feedback.textContent = "步骤顺序不正确，请检查并重试。";
+					feedback.className = "feedback wrong-feedback";
+					feedback.style.display = "block";
+					playSound('wrong');
+				}
+			});
+			
+			nextBtn.addEventListener('click', function() {
+				switchLevel(3);
+			});
+		}
+		
+		// 设置关卡3
+		function setupLevel3() {
+			const trueBtn = document.querySelector('.true-btn');
+			const falseBtn = document.querySelector('.false-btn');
+			const checkBtn = document.getElementById('check-level3');
+			const nextBtn = document.getElementById('next-level3');
+			const feedback = document.getElementById('feedback-level3');
+			const questionElement = document.getElementById('true-false-question');
+			
+			// 为按钮添加点击音效
+			trueBtn.addEventListener('click', function() {
+				playSound('click');
+			});
+			falseBtn.addEventListener('click', function() {
+				playSound('click');
+			});
+			checkBtn.addEventListener('click', function() {
+				playSound('click');
+			});
+			nextBtn.addEventListener('click', function() {
+				playSound('click');
+			});
+			
+			let selectedAnswer = null;
+			let answered = false;
+			
+			// 显示第一个问题
+			showQuestion();
+			
+			trueBtn.addEventListener('click', function() {
+				if (answered) return;
+				
+				// 如果已经选中了true按钮，则取消选择
+				if (selectedAnswer === true) {
+					selectedAnswer = null;
+					trueBtn.classList.remove('selected');
+				} else {
+					selectedAnswer = true;
+					trueBtn.classList.add('selected');
+					falseBtn.classList.remove('selected');
+				}
+			});
+			
+			falseBtn.addEventListener('click', function() {
+				if (answered) return;
+				
+				// 如果已经选中了false按钮，则取消选择
+				if (selectedAnswer === false) {
+					selectedAnswer = null;
+					falseBtn.classList.remove('selected');
+				} else {
+					selectedAnswer = false;
+					falseBtn.classList.add('selected');
+					trueBtn.classList.remove('selected');
+				}
+			});
+			
+			checkBtn.addEventListener('click', function() {
+				if (selectedAnswer === null) {
+					feedback.textContent = "请选择一个答案！";
+					feedback.className = "feedback wrong-feedback";
+					feedback.style.display = "block";
+					return;
+				}
+				
+				const currentQuestion = trueFalseQuestions[currentQuestionIndex];
+				const isCorrect = selectedAnswer === currentQuestion.answer;
+				
+				if (isCorrect) {
+					feedback.textContent = "回答正确！" + currentQuestion.explanation;
+					feedback.className = "feedback correct-feedback";
+					feedback.style.display = "block";
+					score++;
+					updateScore();
+					playSound('correct');
+				} else {
+					feedback.textContent = "回答错误！" + currentQuestion.explanation;
+					feedback.className = "feedback wrong-feedback";
+					feedback.style.display = "block";
+					playSound('wrong');
+				}
+				
+				answered = true;
+				checkBtn.disabled = true;
+				
+				// 如果不是最后一个问题，准备下一个问题
+				if (currentQuestionIndex < trueFalseQuestions.length - 1) {
+					setTimeout(() => {
+						currentQuestionIndex++;
+						showQuestion();
+						resetQuestionState();
+					}, 2000);
+				} else {
+					nextBtn.disabled = false;
+				}
+			});
+			
+			nextBtn.addEventListener('click', function() {
+				showCompletionScreen();
+			});
+			
+			function showQuestion() {
+				const question = trueFalseQuestions[currentQuestionIndex];
+				questionElement.textContent = "请判断下列说法是否正确：" + question.question;
+			}
+			
+			function resetQuestionState() {
+				selectedAnswer = null;
+				answered = false;
+				trueBtn.classList.remove('selected');
+				falseBtn.classList.remove('selected');
+				feedback.style.display = "none";
+				checkBtn.disabled = false;
+			}
+		}
+		
+		// 辅助函数：打乱数组顺序
+		function shuffleArray(array) {
+			for (let i = array.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[array[i], array[j]] = [array[j], array[i]];
+			}
+			return array;
+		}
+		
+		// 切换关卡
+		function switchLevel(level) {
+			document.getElementById(`level${currentLevel}`).classList.remove('active');
+			document.getElementById(`level${level}`).classList.add('active');
+			
+			// 更新关卡指示器
+			document.querySelectorAll('.level-dot').forEach(dot => {
+				dot.classList.remove('active');
+				if (parseInt(dot.getAttribute('data-level')) === level) {
+					dot.classList.add('active');
+				}
+			});
+			
+			currentLevel = level;
+		}
+		
+		// 更新得分
+		function updateScore() {
+			document.getElementById('score-value').textContent = score;
+		}
+		
+		// 显示完成界面
+		function showCompletionScreen() {
+			document.getElementById('level3').classList.remove('active');
+			document.getElementById('completion-screen').style.display = 'block';
+			document.getElementById('final-score').textContent = score;
+			
+			let message = "";
+			if (score === 3) {
+				message = "太棒了！你对氧气实验室制取与性质掌握得非常牢固！";
+			} else if (score >= 2) {
+				message = "不错！你对氧气实验室制取与性质有较好的理解！";
+			} else {
+				message = "需要继续努力，建议回顾一下氧气实验室制取与性质的相关知识。";
+			}
+			
+			document.getElementById('completion-message').textContent = message;
+		}
+		
+		// 重新开始游戏
+		function restartGame() {
+			currentLevel = 1;
+			score = 0;
+			currentQuestionIndex = 0;
+			
+			// 重置关卡1
+			document.querySelectorAll('#equipment-options .option').forEach(option => {
+				option.classList.remove('selected', 'correct', 'wrong');
+				const optionNumber = option.querySelector('.option-number');
+				optionNumber.textContent = '';
+			});
+			document.getElementById('check-level1').disabled = false;
+			document.getElementById('next-level1').disabled = true;
+			document.getElementById('feedback-level1').style.display = 'none';
+			
+			// 重置关卡2
+			const stepsContainer = document.getElementById('steps-container');
+			stepsContainer.innerHTML = '';
+			
+			// 重新生成并打乱步骤
+			const shuffledSteps = [...correctSteps];
+			shuffleArray(shuffledSteps);
+			
+			shuffledSteps.forEach(step => {
+				const stepItem = document.createElement('div');
+				stepItem.className = 'step-item';
+				stepItem.setAttribute('data-order', step.order);
+				
+				// 添加步骤编号容器
+				const stepNumber = document.createElement('span');
+				stepNumber.className = 'step-number';
+				stepNumber.textContent = '?';
+				stepItem.appendChild(stepNumber);
+				
+				// 添加步骤文本
+				const stepText = document.createElement('span');
+				stepText.textContent = step.text;
+				stepItem.appendChild(stepText);
+				
+				stepsContainer.appendChild(stepItem);
+			});
+			
+			// 重新设置点击事件
+			const stepItems = stepsContainer.querySelectorAll('.step-item');
+			let selectedSteps = [];
+			
+			stepItems.forEach(stepItem => {
+				stepItem.addEventListener('click', function() {
+					// 如果已经选中，则取消选中
+					if (this.classList.contains('selected')) {
+						this.classList.remove('selected');
+						const order = parseInt(this.getAttribute('data-order'));
+						selectedSteps = selectedSteps.filter(step => step !== order);
+						
+						// 更新所有步骤的编号
+						updateStepNumbers();
+					} else {
+						// 选中步骤
+						this.classList.add('selected');
+						const order = parseInt(this.getAttribute('data-order'));
+						selectedSteps.push(order);
+						
+						// 更新步骤编号
+						const stepNumber = this.querySelector('.step-number');
+						stepNumber.textContent = selectedSteps.length;
+					}
+					
+					playSound('click');
+				});
+			});
+			
+			// 更新步骤编号的函数
+			function updateStepNumbers() {
+				selectedSteps = [];
+				stepItems.forEach(stepItem => {
+					if (stepItem.classList.contains('selected')) {
+						const order = parseInt(stepItem.getAttribute('data-order'));
+						selectedSteps.push(order);
+						const stepNumber = stepItem.querySelector('.step-number');
+						stepNumber.textContent = selectedSteps.length;
+					} else {
+						const stepNumber = stepItem.querySelector('.step-number');
+						stepNumber.textContent = '?';
+					}
+				});
+			}
+			
+			document.getElementById('check-level2').disabled = false;
+			document.getElementById('next-level2').disabled = true;
+			document.getElementById('feedback-level2').style.display = 'none';
+			
+			// 重置关卡3
+			document.querySelector('.true-btn').classList.remove('selected');
+			document.querySelector('.false-btn').classList.remove('selected');
+			document.getElementById('check-level3').disabled = false;
+			document.getElementById('next-level3').disabled = true;
+			document.getElementById('feedback-level3').style.display = 'none';
+			
+			// 重置完成界面
+			document.getElementById('completion-screen').style.display = 'none';
+			
+			// 切换到第一关
+			document.querySelectorAll('.game-area').forEach(area => {
+				area.classList.remove('active');
+			});
+			document.getElementById('level1').classList.add('active');
+			
+			// 重置关卡指示器
+			document.querySelectorAll('.level-dot').forEach(dot => {
+				dot.classList.remove('active');
+				if (parseInt(dot.getAttribute('data-level')) === 1) {
+					dot.classList.add('active');
+				}
+			});
+			
+			// 重置得分
+			updateScore();
+		}
+	</script>
+</body>
+</html>
